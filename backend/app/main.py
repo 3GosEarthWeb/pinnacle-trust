@@ -1,36 +1,26 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.status import HTTP_200_OK
+from app.routers import auth_router, user_router, account_router, transaction_router, loan_router, admin_router
 
-# Import your routers
-from app.api.auth_router import router as auth_router
-from app.api.user_router import router as user_router
-# Add more router imports here as you generate them
+app = FastAPI(title="Pinnacle Trust API", version="1.0.0")
 
-app = FastAPI(
-    title="Pinnacle Trust API",
-    version="1.0.0",
-    description="Backend API for Pinnacle Trust Banking System",
-    docs_url="/docs",
-    redoc_url="/redoc"
-)
-
-# CORS (adjust origins in production)
+# CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change to specific domains in production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Health check
-@app.get("/health", status_code=HTTP_200_OK)
+# Routes
+@app.get("/health", tags=["System"])
 def health_check():
     return {"status": "ok"}
 
-# Register routers
-app.include_router(auth_router)
-app.include_router(user_router)
-# Add more include_router(...) as needed
-
+app.include_router(auth_router.router, prefix="/auth", tags=["Auth"])
+app.include_router(user_router.router, prefix="/users", tags=["Users"])
+app.include_router(account_router.router, prefix="/accounts", tags=["Accounts"])
+app.include_router(transaction_router.router, prefix="/transactions", tags=["Transactions"])
+app.include_router(loan_router.router, prefix="/loans", tags=["Loans"])
+app.include_router(admin_router.router, prefix="/admin", tags=["Admin"])
